@@ -3,136 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mois Khan</title>
+    <title>Mois Khan | Research & Systems</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
-        .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 350px; max-height: 400px; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f8fafc; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        :root {
+            scroll-behavior: smooth;
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Subtle Background Patterns */
+        .bg-dot-grid {
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        .bg-mesh {
+            background: radial-gradient(circle at 50% -20%, #e2e8f0, transparent),
+                        radial-gradient(circle at 0% 100%, #f1f5f9, transparent);
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin: 0 auto; height: 350px; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
     </style>
-    <!-- Chosen Palette: Slate & Blue Minimalist (Slate 50 background, Slate 900 text, Blue 600 accents) -->
-    <!-- Application Structure Plan: A single-page scrolling architecture designed for academic and professional review. Structure: 1) High-impact Hero identifying the candidate and core focus. 2) Projects section detailing systems architecture and outcomes. 3) Interactive Metrics dashboard proving the quantitative claims of the resume (latency, safety scores). 4) Honors & Academics. This flow mimics a research presentation: Introduction -> Methodology -> Results -> Credentials. -->
-    <!-- Visualization & Content Choices: Resume Data -> Inform & Compare -> Bar Chart (Chart.js) -> Toggleable datasets -> Justification: Proves the engineering impact claims (sub-3s latency, 15% safety improvement) visually. Library: Chart.js Canvas. NO SVG/Mermaid. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 </head>
-<body class="bg-slate-50 text-slate-900 antialiased selection:bg-blue-200 selection:text-blue-900">
+<body class="text-slate-900 antialiased selection:bg-blue-100">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
+        // --- Custom SVG Icons ---
+        const Icons = {
+            Graduation: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            ),
+            Trophy: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+            ),
+            Code: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            ),
+            Stack: () => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            )
+        };
+
         const Navbar = () => (
-            <nav class="fixed top-0 w-full bg-slate-50/90 backdrop-blur-md z-50 border-b border-slate-200">
+            <nav class="fixed top-0 w-full z-50 glass border-b border-slate-200/50">
                 <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-                    <span class="text-xl font-bold tracking-tighter">Mois Khan.</span>
-                    <div class="hidden md:flex space-x-8 text-sm font-medium text-slate-600">
-                        <a href="#about" class="hover:text-blue-600 transition-colors">About</a>
-                        <a href="#projects" class="hover:text-blue-600 transition-colors">Projects</a>
-                        <a href="#metrics" class="hover:text-blue-600 transition-colors">Impact Metrics</a>
-                        <a href="#achievements" class="hover:text-blue-600 transition-colors">Achievements</a>
+                    <span class="text-lg font-bold tracking-tight mono italic">mk.dev</span>
+                    <div class="hidden md:flex space-x-8 text-xs font-medium uppercase tracking-widest text-slate-500">
+                        <a href="#about" class="hover:text-blue-600 transition-colors">Intro</a>
+                        <a href="#projects" class="hover:text-blue-600 transition-colors">Systems</a>
+                        <a href="#metrics" class="hover:text-blue-600 transition-colors">Metrics</a>
+                        <a href="#achievements" class="hover:text-blue-600 transition-colors">Honors</a>
                     </div>
-                    <a href="mailto:moiskhanmd9090@gmail.com" class="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-md hover:bg-slate-800 transition-colors">
-                        Contact &#x2192;
+                    <a href="mailto:moiskhanmd9090@gmail.com" class="text-xs font-bold px-5 py-2.5 bg-slate-900 text-white rounded-full hover:bg-blue-600 transition-all">
+                        GET IN TOUCH
                     </a>
                 </div>
             </nav>
         );
 
         const Hero = () => (
-            <header class="min-h-screen flex items-center justify-center pt-20 px-6">
-                <div class="max-w-5xl mx-auto text-center flex flex-col items-center">
-                    
-                    {/* 1. Reduced bottom margin (mb-4 instead of mb-6) to pull the badge closer to the title */}
-                    <span class="inline-block py-1 px-3 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold tracking-wider mb-4 uppercase">
-                        IITH SURE 2026 Applicant
-                    </span>
-                    
-                    {/* 2. Adjusted text sizing (md:text-6xl lg:text-7xl) and added a manual line break (<br/>) so it balances perfectly on large screens */}
-                    <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-6 leading-[1.15]">
-                        Transforming <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">AI Research</span><br class="hidden md:block" />
-                        into Secure, High-Speed Systems.
-                    </h1>
-                    
-                    {/* 3. Widened the max-width (max-w-3xl) of the paragraph so it forms a cleaner, wider block of text */}
-                    <p class="text-lg md:text-xl text-center text-slate-600 mb-10 max-w-3xl leading-relaxed">
-                        B.Tech student specializing in Cyber Security. My research interests center on developing secure, applied AI solutions—orchestrating complex models and spatial APIs to build resilient, user-centric technologies.
-                    </p>
-                    
-                    <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
-                        <a href="#projects" class="px-8 py-4 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl w-full sm:w-auto">
-                            Explore My Work
-                        </a>
-                        <a href="https://github.com/mois-khan" target="_blank" class="px-8 py-4 bg-white text-slate-900 border border-slate-200 rounded-lg font-medium hover:border-slate-400 transition-all w-full sm:w-auto">
-                            View GitHub &#x2197;
-                        </a>
+            <header id="about" class="relative min-h-screen flex items-center pt-20 px-6 overflow-hidden bg-mesh">
+                <div class="absolute inset-0 bg-dot-grid opacity-[0.3]"></div>
+                <div class="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12 items-center relative z-10">
+                    <div class="lg:col-span-8">
+                        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 mb-6">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                            </span>
+                            <span class="text-[10px] font-bold tracking-[0.2em] text-blue-700 uppercase">Available for Research 2026</span>
+                        </div>
+                        
+                        <h1 class="text-6xl md:text-8xl font-bold tracking-tighter text-slate-900 mb-8 leading-[0.9]">
+                            Mois Khan <br/>
+                            <span class="text-slate-400">Cyber Systems & AI.</span>
+                        </h1>
+                        
+                        <p class="text-xl md:text-2xl text-slate-600 mb-10 max-w-2xl font-light leading-relaxed">
+                            Engineering secure, low-latency AI pipelines. Specializing in <span class="text-slate-900 font-medium">social engineering defense</span> and <span class="text-slate-900 font-medium">geospatial heuristics</span>.
+                        </p>
+                        
+                        <div class="flex flex-wrap gap-4">
+                            <a href="#projects" class="px-8 py-4 bg-slate-900 text-white rounded-sm font-medium hover:bg-blue-600 transition-all shadow-xl">
+                                View Architecture
+                            </a>
+                            <a href="https://github.com/mois-khan" target="_blank" class="px-8 py-4 bg-transparent text-slate-900 border border-slate-300 rounded-sm font-medium hover:border-slate-900 transition-all">
+                                Documentation &#x2197;
+                            </a>
+                        </div>
                     </div>
+                </div>
+                <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-20 hidden md:block">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
                 </div>
             </header>
         );
 
         const ProjectCard = ({ title, tag, description, points, metrics, link }) => (
-            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-                <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-2xl font-bold text-slate-900">{title}</h3>
-                    <span class="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-medium rounded-full">{tag}</span>
+            <div class="group bg-white p-8 border border-slate-200 hover:border-blue-500 transition-all duration-500 relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
+                    <Icons.Code />
                 </div>
-                <p class="text-slate-600 mb-6">{description}</p>
-                <div class="space-y-3 mb-8">
+                <div class="mb-6">
+                    <span class="mono text-[10px] uppercase tracking-widest text-blue-600 font-bold">{tag}</span>
+                    <h3 class="text-2xl font-bold text-slate-900 mt-2">{title}</h3>
+                </div>
+                <p class="text-slate-500 mb-8 text-sm leading-relaxed">{description}</p>
+                <div class="space-y-4 mb-8">
                     {points.map((pt, i) => (
                         <div key={i} class="flex items-start">
-                            <span class="text-blue-600 mr-3 mt-1">&#x2713;</span>
-                            <p class="text-sm text-slate-700"><strong>{pt.split(':')[0]}:</strong> {pt.split(':')[1] || pt}</p>
+                            <div class="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 mr-3 shrink-0"></div>
+                            <p class="text-sm text-slate-700 leading-tight">{pt}</p>
                         </div>
                     ))}
                 </div>
-                <div class="bg-slate-50 p-4 rounded-lg mb-6 border border-slate-100">
-                    <p class="text-sm font-semibold text-slate-900 mb-1">Impact Metric</p>
-                    <p class="text-slate-600 text-sm">{metrics}</p>
+                <div class="pt-6 border-t border-slate-100 mt-auto">
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Performance Output</p>
+                    <p class="text-slate-900 text-sm font-medium">{metrics}</p>
                 </div>
-                <a href={link} target="_blank" class="text-blue-600 font-medium hover:text-blue-800 flex items-center text-sm">
-                    View Repository <span class="ml-1">&#x2192;</span>
-                </a>
             </div>
         );
 
         const Projects = () => (
-            <section id="projects" class="py-24 px-6 bg-slate-50">
-                <div class="max-w-6xl mx-auto">
-                    <div class="mb-16">
-                        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Functional Prototypes</h2>
-                        <p class="text-slate-600 max-w-2xl">This section details my core engineering projects, focusing on system architecture, API orchestration, and measurable performance outcomes. These prototypes demonstrate my ability to move beyond theory into functional, low-latency execution.</p>
+            <section id="projects" class="py-32 px-6 bg-slate-50 relative overflow-hidden">
+                <div class="max-w-6xl mx-auto relative z-10">
+                    <div class="mb-20">
+                        <h2 class="text-sm font-bold tracking-[0.3em] text-blue-600 uppercase mb-4 italic">Functional Systems</h2>
+                        <h3 class="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">Technical Prototypes</h3>
                     </div>
-                    <div class="grid md:grid-cols-2 gap-8">
+                    <div class="grid md:grid-cols-2 gap-px bg-slate-200 border border-slate-200">
                         <ProjectCard 
                             title="CallShield-AI"
                             tag="Voice Security"
-                            description="A real-time LLM-driven pipeline for social engineering and fraud detection during live telephonic streams."
+                            description="Real-time LLM pipeline for fraud detection during live telephonic streams."
                             points={[
-                                "Architecture: Architected an asynchronous pipeline using Node.js and WebSockets.",
-                                "Implementation: Integrated Deepgram (STT) with Gemini 1.5 Flash.",
-                                "Evaluation: Benchmarked against synthetic scam taxonomies (KYC, Lottery)."
+                                "Asynchronous Node.js & WebSocket orchestration",
+                                "Deepgram (STT) + Gemini 1.5 Flash integration",
+                                "Scam taxonomy benchmarking (KYC/Lottery)"
                             ]}
-                            metrics="Sub-3 second end-to-end detection latency with a 90%+ True Positive Rate."
+                            metrics="Sub-3s latency | 90% True Positive Rate"
                             link="https://github.com/mois-khan/callshield-ai"
                         />
                         <ProjectCard 
                             title="SafeRoute"
                             tag="Urban Navigation"
-                            description="A multi-criteria pathfinding heuristic navigation system prioritizing urban safety over traditional distance metrics."
+                            description="Pathfinding heuristic system prioritizing safety density over shortest-path metrics."
                             points={[
-                                "Concept: Prioritizes Safety Density over standard shortest-path algorithms.",
-                                "Methodology: Custom heuristic logic weighing geospatial data points (OSM).",
-                                "Signals Used: Police Stations, Hospitals, and Street Lighting density."
+                                "Custom heuristic logic on OSM data",
+                                "Geospatial weighting (Light/Police/Hospital)",
+                                "A* variant for safety-optimized routing"
                             ]}
-                            metrics="Demonstrated a 15% safety score improvement over baseline routing."
+                            metrics="15% Safety Score improvement vs Baseline"
                             link="https://github.com/mois-khan/saferoute-AI"
                         />
                     </div>
@@ -146,151 +188,106 @@
             const [view, setView] = useState('latency'); 
 
             useEffect(() => {
-                if (chartInstance.current) {
-                    chartInstance.current.destroy();
-                }
-
+                if (chartInstance.current) chartInstance.current.destroy();
                 const ctx = chartRef.current.getContext('2d');
                 
-                const latencyData = {
-                    labels: ['Sequential API Polling', 'CallShield-AI (Async Pipeline)'],
-                    datasets: [{
-                        label: 'End-to-End Latency (Seconds)',
-                        data: [8.5, 2.8],
-                        backgroundColor: ['#cbd5e1', '#2563eb'],
-                        borderRadius: 6
-                    }]
-                };
+                const data = view === 'latency' 
+                    ? { labels: ['Sequential API', 'CallShield (Async)'], values: [8.5, 2.8], color: '#2563eb' }
+                    : { labels: ['Standard Route', 'SafeRoute (Heuristic)'], values: [65, 80], color: '#10b981' };
 
-                const safetyData = {
-                    labels: ['Standard Routing (Distance)', 'SafeRoute-AI (Heuristic)'],
-                    datasets: [{
-                        label: 'Relative Safety Score (0-100)',
-                        data: [65, 80],
-                        backgroundColor: ['#cbd5e1', '#10b981'],
-                        borderRadius: 6
-                    }]
-                };
-
-                const config = {
+                chartInstance.current = new Chart(ctx, {
                     type: 'bar',
-                    data: view === 'latency' ? latencyData : safetyData,
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            data: data.values,
+                            backgroundColor: ['#e2e8f0', data.color],
+                            borderRadius: 2,
+                            barThickness: 60
+                        }]
+                    },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                backgroundColor: '#0f172a',
-                                titleFont: { family: 'Inter', size: 13 },
-                                bodyFont: { family: 'Inter', size: 14 },
-                                padding: 12,
-                                cornerRadius: 8
-                            }
-                        },
+                        plugins: { legend: { display: false } },
                         scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: { color: '#f1f5f9' },
-                                title: {
-                                    display: true,
-                                    text: view === 'latency' ? 'Seconds (Lower is Better)' : 'Score (Higher is Better)',
-                                    font: { family: 'Inter', weight: '500' }
-                                }
-                            },
-                            x: {
-                                grid: { display: false },
-                                ticks: { font: { family: 'Inter', weight: '500' } }
-                            }
+                            y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } },
+                            x: { grid: { display: false }, ticks: { font: { family: 'Inter', weight: '600', size: 11 } } }
                         }
                     }
-                };
-
-                chartInstance.current = new Chart(ctx, config);
-
-                return () => {
-                    if (chartInstance.current) chartInstance.current.destroy();
-                };
+                });
             }, [view]);
 
             return (
-                <section id="metrics" class="py-24 px-6 bg-white border-y border-slate-200">
+                <section id="metrics" class="py-32 px-6 bg-white border-y border-slate-200">
                     <div class="max-w-4xl mx-auto">
-                        <div class="mb-12 text-center">
-                            <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Quantifying Impact</h2>
-                            <p class="text-slate-600 mb-8">This interactive visualization substantiates the performance claims of my architectural decisions. Select a metric below to compare baseline performance against my engineered solutions.</p>
-                            
-                            <div class="inline-flex bg-slate-100 p-1 rounded-lg">
-                                <button 
-                                    onClick={() => setView('latency')}
-                                    class={`px-6 py-2 rounded-md text-sm font-medium transition-all ${view === 'latency' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-900'}`}
-                                >
-                                    CallShield Latency
-                                </button>
-                                <button 
-                                    onClick={() => setView('safety')}
-                                    class={`px-6 py-2 rounded-md text-sm font-medium transition-all ${view === 'safety' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-900'}`}
-                                >
-                                    SafeRoute Effectiveness
-                                </button>
+                        <div class="text-center mb-16">
+                            <h2 class="text-3xl font-bold mb-6 italic tracking-tight">Quantified Performance</h2>
+                            <div class="inline-flex bg-slate-100 p-1 rounded-sm">
+                                {['latency', 'safety'].map(v => (
+                                    <button 
+                                        key={v}
+                                        onClick={() => setView(v)}
+                                        class={`px-8 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${view === v ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-900'}`}
+                                    >
+                                        {v === 'latency' ? 'CallShield Latency' : 'SafeRoute Efficacy'}
+                                    </button>
+                                ))}
                             </div>
                         </div>
-                        
-                        <div class="chart-container bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <div class="chart-container p-8 bg-slate-50/50 border border-slate-100 rounded-xl">
                             <canvas ref={chartRef}></canvas>
                         </div>
-                        <p class="text-center text-xs text-slate-400 mt-4 font-mono uppercase tracking-wider">Fig 1: {view === 'latency' ? 'Latency Reduction via Async Pipeline' : 'Heuristic Optimization of Route Safety'}</p>
                     </div>
                 </section>
             );
         };
 
         const Achievements = () => (
-            <section id="achievements" class="py-24 px-6 bg-slate-900 text-white">
-                <div class="max-w-6xl mx-auto">
-                    <div class="grid md:grid-cols-2 gap-16">
-                        <div>
-                            <h2 class="text-3xl font-bold mb-8">Academic Standing</h2>
-                            <div class="space-y-6">
-                                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
-                                    <div class="text-4xl font-light text-blue-400 mb-2">8.50</div>
-                                    <div class="font-semibold text-lg">SGPA (Semester III-I)</div>
-                                    <div class="text-slate-400 text-sm mt-1">Malla Reddy Engineering College & Management Sciences</div>
-                                </div>
-                                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 flex items-center">
-                                    <div class="text-3xl mr-4">&#x1F3C6;</div>
-                                    <div>
-                                        <div class="font-semibold text-lg">Top 20% Certification</div>
-                                        <div class="text-slate-400 text-sm">CSE Department</div>
-                                    </div>
-                                </div>
+            <section id="achievements" class="py-32 px-6 bg-slate-950 text-white relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-full bg-dot-grid opacity-[0.05]"></div>
+                <div class="max-w-6xl mx-auto relative z-10">
+                    <h2 class="text-4xl font-bold mb-20 tracking-tighter">Honors & Credentials</h2>
+                    
+                    <div class="grid md:grid-cols-3 gap-8">
+                        {/* GPA Card */}
+                        <div class="md:col-span-1 bg-slate-900/50 p-8 border border-slate-800 rounded-2xl hover:bg-slate-900 transition-all">
+                            <div class="text-blue-500 mb-6"><Icons.Graduation /></div>
+                            <div class="text-5xl font-bold mb-2 tracking-tighter">8.50</div>
+                            <div class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">SGPA (Sem III-I)</div>
+                            <p class="text-xs text-slate-500 leading-relaxed">Malla Reddy Engineering College. Ranking in top 20% of CSE department.</p>
+                        </div>
+
+                        {/* Awards Card */}
+                        <div class="md:col-span-2 grid sm:grid-cols-2 gap-8">
+                            <div class="bg-slate-900/50 p-8 border border-slate-800 rounded-2xl hover:bg-slate-900 transition-all">
+                                <div class="text-blue-500 mb-6"><Icons.Trophy /></div>
+                                <h4 class="text-xl font-bold mb-2">1st Prize: Research</h4>
+                                <p class="text-sm text-slate-400 leading-relaxed italic">Avazya 2k25 @ CMREC</p>
+                                <p class="text-xs text-slate-500 mt-4 leading-relaxed">Awarded for excellence in technical research synthesis and presentation logic.</p>
+                            </div>
+                            <div class="bg-slate-900/50 p-8 border border-slate-800 rounded-2xl hover:bg-slate-900 transition-all">
+                                <div class="text-blue-500 mb-6"><Icons.Code /></div>
+                                <h4 class="text-xl font-bold mb-2">Buildathon 2025</h4>
+                                <p class="text-sm text-slate-400 leading-relaxed italic">OpenAI x NXT</p>
+                                <p class="text-xs text-slate-500 mt-4 leading-relaxed">Developed high-concurrency generative AI prototypes under strict time constraints.</p>
                             </div>
                         </div>
-                        <div>
-                            <h2 class="text-3xl font-bold mb-8">Honors & Competitions</h2>
-                            <ul class="space-y-6">
-                                <li class="flex items-start">
-                                    <span class="text-blue-400 mr-4 text-xl">&#x2728;</span>
-                                    <div>
-                                        <h4 class="text-xl font-semibold">1st Prize - Paper Presentation</h4>
-                                        <p class="text-slate-400 text-sm mt-1">Avazya 2k25 at CMREC. Awarded for excellence in technical research synthesis and presentation logic.</p>
-                                    </div>
-                                </li>
-                                <li class="flex items-start">
-                                    <span class="text-blue-400 mr-4 text-xl">&#x1F680;</span>
-                                    <div>
-                                        <h4 class="text-xl font-semibold">OpenAI x NXT Buildathon</h4>
-                                        <p class="text-slate-400 text-sm mt-1">2025 Participant. Developed a generative AI prototype under strict time constraints, focusing on ethical AI integration.</p>
-                                    </div>
-                                </li>
-                                <li class="flex items-start">
-                                    <span class="text-blue-400 mr-4 text-xl">&#x1F4BB;</span>
-                                    <div>
-                                        <h4 class="text-xl font-semibold">Technical Stack</h4>
-                                        <p class="text-slate-400 text-sm mt-1">Python, JavaScript (ES6+), Node.js, Express, WebSocket, Gemini 1.5 API, Deepgram STT, Tailwind CSS, React.</p>
-                                    </div>
-                                </li>
-                            </ul>
+
+                        {/* Stack Card */}
+                        <div class="md:col-span-3 bg-blue-600 p-8 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+                            <div class="flex items-center space-x-4">
+                                <div class="p-3 bg-white/10 rounded-lg"><Icons.Stack /></div>
+                                <div>
+                                    <h4 class="text-xl font-bold">Technical Competency</h4>
+                                    <p class="text-blue-100 text-sm">Orchestrating modern AI & System frameworks.</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                {['Python', 'Node.js', 'WebSocket', 'React', 'Gemini 1.5 API', 'Deepgram', 'Tailwind'].map(tech => (
+                                    <span key={tech} class="px-3 py-1 bg-white/10 rounded text-[10px] font-bold tracking-widest uppercase">{tech}</span>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -298,25 +295,30 @@
         );
 
         const Footer = () => (
-            <footer class="py-8 text-center text-slate-500 text-sm bg-slate-950">
-                <p>&copy; 2026 Md. Mois Khan. | </p>
+            <footer class="py-12 bg-slate-950 border-t border-slate-900 px-6">
+                <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center text-slate-500 text-[10px] font-bold tracking-[0.2em] uppercase">
+                    <p>&copy; 2026 Md. Mois Khan. Systems Portfolio.</p>
+                    <div class="flex space-x-6 mt-4 md:mt-0">
+                        <a href="https://github.com/mois-khan" class="hover:text-white">GitHub</a>
+                        <a href="#" class="hover:text-white">LinkedIn</a>
+                        <a href="mailto:moiskhanmd9090@gmail.com" class="hover:text-white">Email</a>
+                    </div>
+                </div>
             </footer>
         );
 
-        const App = () => {
-            return (
-                <div class="relative">
-                    <Navbar />
-                    <main>
-                        <Hero />
-                        <Projects />
-                        <MetricsChart />
-                        <Achievements />
-                    </main>
-                    <Footer />
-                </div>
-            );
-        };
+        const App = () => (
+            <div class="relative">
+                <Navbar />
+                <main>
+                    <Hero />
+                    <Projects />
+                    <MetricsChart />
+                    <Achievements />
+                </main>
+                <Footer />
+            </div>
+        );
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
