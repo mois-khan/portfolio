@@ -1,337 +1,578 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mois Khan | Portfolio </title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mois Khan | Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-        
-        :root {
-            scroll-behavior: smooth;
-        }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #f8fafc;
-        }
-        .mono { font-family: 'JetBrains Mono', monospace; }
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
 
-        /* Subtle Background Patterns */
-        .bg-dot-grid {
-            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-            background-size: 30px 30px;
-        }
-        .bg-mesh {
-            background: radial-gradient(circle at 50% -20%, #e2e8f0, transparent),
-                        radial-gradient(circle at 0% 100%, #f1f5f9, transparent);
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-        }
-        
-        .chart-container { position: relative; width: 100%; max-width: 800px; margin: 0 auto; height: 350px; }
-        
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+      :root {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f8fafc;
+      }
+      .mono {
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      /* Subtle Background Patterns */
+      .bg-dot-grid {
+        background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+        background-size: 30px 30px;
+      }
+      .bg-mesh {
+        background:
+          radial-gradient(circle at 50% -20%, #e2e8f0, transparent),
+          radial-gradient(circle at 0% 100%, #f1f5f9, transparent);
+      }
+      .glass {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+      }
+
+      .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        height: 350px;
+      }
+
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #94a3b8;
+        border-radius: 10px;
+      }
     </style>
-</head>
-<body class="text-slate-900 antialiased selection:bg-blue-100">
+  </head>
+  <body class="text-slate-900 antialiased selection:bg-blue-100">
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+      const { useState, useEffect, useRef } = React;
 
-        // --- Custom SVG Icons ---
-        const Icons = {
-            Graduation: () => (
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-            ),
-            Trophy: () => (
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-            ),
-            Code: () => (
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            ),
-            Stack: () => (
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-            )
-        };
+      // --- Custom SVG Icons ---
+      const Icons = {
+        Graduation: () => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+            <path d="M6 12v5c3 3 9 3 12 0v-5" />
+          </svg>
+        ),
+        Trophy: () => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+            <path d="M4 22h16" />
+            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+          </svg>
+        ),
+        Code: () => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="16 18 22 12 16 6" />
+            <polyline points="8 6 2 12 8 18" />
+          </svg>
+        ),
+        Stack: () => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polygon points="12 2 2 7 12 12 22 7 12 2" />
+            <polyline points="2 17 12 22 22 17" />
+            <polyline points="2 12 12 17 22 12" />
+          </svg>
+        ),
+      };
 
-        const Navbar = () => (
-            <nav class="fixed top-0 w-full z-50 glass border-b border-slate-200/50">
-                <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-                    <span class="text-lg font-bold tracking-tight mono italic">moiskhan.dev</span>
-                    <div class="hidden md:flex space-x-8 text-xs font-medium uppercase tracking-widest text-slate-500">
-                        <a href="#about" class="hover:text-blue-600 transition-colors">Intro</a>
-                        <a href="#projects" class="hover:text-blue-600 transition-colors">Systems</a>
-                        <a href="#metrics" class="hover:text-blue-600 transition-colors">Metrics</a>
-                        <a href="#achievements" class="hover:text-blue-600 transition-colors">Honors</a>
-                    </div>
-                    <a href="mailto:moiskhanmd9090@gmail.com" class="text-xs font-bold px-5 py-2.5 bg-slate-900 text-white rounded-full hover:bg-blue-600 transition-all">
-                        GET IN TOUCH
-                    </a>
+      const Navbar = () => (
+        <nav class="fixed top-0 w-full z-50 glass border-b border-slate-200/50">
+          <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <span class="text-lg font-bold tracking-tight mono italic">
+              moiskhan.dev
+            </span>
+            <div class="hidden md:flex space-x-8 text-xs font-medium uppercase tracking-widest text-slate-500">
+              <a href="#about" class="hover:text-blue-600 transition-colors">
+                Intro
+              </a>
+              <a href="#projects" class="hover:text-blue-600 transition-colors">
+                Systems
+              </a>
+              <a href="#metrics" class="hover:text-blue-600 transition-colors">
+                Metrics
+              </a>
+              <a
+                href="#achievements"
+                class="hover:text-blue-600 transition-colors"
+              >
+                Honors
+              </a>
+            </div>
+            <a
+              href="mailto:moiskhanmd9090@gmail.com"
+              class="text-xs font-bold px-5 py-2.5 bg-slate-900 text-white rounded-full hover:bg-blue-600 transition-all"
+            >
+              GET IN TOUCH
+            </a>
+          </div>
+        </nav>
+      );
+
+      const Hero = () => (
+        <header
+          id="about"
+          class="relative min-h-screen flex items-center pt-20 px-6 overflow-hidden bg-mesh"
+        >
+          <div class="absolute inset-0 bg-dot-grid opacity-[0.3]"></div>
+          <div class="max-w-6xl mx-auto relative z-10 w-full">
+            <div class="max-w-4xl">
+              <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 mb-6">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                </span>
+                <span class="text-[10px] font-bold tracking-[0.2em] text-blue-700 uppercase leading-none">
+                  Currently building AI & Software Projects
+                </span>
+              </div>
+
+              <h1 class="text-7xl md:text-9xl font-bold tracking-tighter text-slate-900 mb-2 leading-[0.85]">
+                Mois Khan
+              </h1>
+
+              <h2 class="text-6xl md:text-8xl font-bold tracking-tighter text-slate-400 mb-10 leading-[0.9]">
+                Software Systems & AI <br /> Solutions
+              </h2>
+
+              <p class="text-xl md:text-2xl text-slate-600 mb-10 max-w-2xl font-light leading-relaxed">
+                I design and build software systems that solve{" "}
+                <span class="text-slate-900 font-medium">
+                  real-world problems
+                </span>{" "}
+                — from{" "}
+                <span class="text-slate-900 font-medium">
+                  AI-powered security
+                </span>{" "}
+                tools to practical web applications.
+              </p>
+
+              <div class="flex flex-wrap gap-4">
+                <a
+                  href="#projects"
+                  class="px-8 py-4 bg-[#0f172a] text-white rounded-xl font-bold hover:bg-blue-600 transition-all shadow-lg hover:shadow-blue-200/50"
+                >
+                  View Projects
+                </a>
+                <a
+                  href="https://github.com/mois-khan"
+                  target="_blank"
+                  class="px-8 py-4 bg-white text-slate-900 border border-slate-200 rounded-xl font-bold hover:border-slate-900 transition-all flex items-center shadow-sm"
+                >
+                  GitHub <span class="ml-2 text-lg">↗</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </header>
+      );
+
+      const ProjectCard = ({
+        title,
+        tag,
+        description,
+        points,
+        metrics,
+        link,
+      }) => (
+        <div class="group bg-white p-8 md:p-10 border border-slate-100 rounded-[2rem] shadow-sm hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500 flex flex-col h-full">
+          <div class="flex justify-between items-start mb-8">
+            <div>
+              <span class="mono text-[10px] uppercase tracking-[0.2em] text-blue-600 font-bold bg-blue-50 px-3 py-1 rounded-md">
+                {tag}
+              </span>
+              <h3 class="text-3xl font-bold text-slate-900 mt-4 tracking-tight group-hover:text-blue-600 transition-colors">
+                {title}
+              </h3>
+            </div>
+            <div class="text-slate-200 group-hover:text-blue-100 transition-colors">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                <path d="m10 13-2 2 2 2" />
+                <path d="m14 17 2-2-2-2" />
+              </svg>
+            </div>
+          </div>
+
+          <p class="text-slate-500 mb-8 text-base leading-relaxed font-light">
+            {description}
+          </p>
+
+          <div class="space-y-4 mb-10 flex-grow">
+            {points.map((pt, i) => (
+              <div key={i} class="flex items-start group/item">
+                <div class="w-5 h-5 rounded-full bg-slate-50 flex items-center justify-center mt-0.5 mr-3 border border-slate-100 group-hover/item:border-blue-200 transition-colors">
+                  <div class="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover/item:bg-blue-500 transition-colors"></div>
                 </div>
-            </nav>
+                <p class="text-sm text-slate-600 leading-snug">{pt}</p>
+              </div>
+            ))}
+          </div>
+
+          <div class="pt-8 border-t border-slate-50 mt-auto flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                Impact Metric
+              </p>
+              <p class="text-slate-900 font-bold text-sm tracking-tight">
+                {metrics}
+              </p>
+            </div>
+            <a
+              href={link}
+              target="_blank"
+              class="inline-flex items-center justify-center px-6 py-3 bg-slate-900 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-blue-600 transition-all shadow-md active:scale-95"
+            >
+              Source Code
+              <svg
+                class="ml-2 w-3 h-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.5"
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                ></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+      );
+
+      const Projects = () => (
+        <section id="projects" class="py-32 px-6 bg-slate-50/50">
+          <div class="max-w-6xl mx-auto">
+            <div class="mb-20">
+              <span class="mono text-xs font-bold tracking-[0.4em] text-blue-600 uppercase italic">
+                Functional Systems
+              </span>
+              <h3 class="text-5xl md:text-6xl font-bold text-slate-900 tracking-tighter mt-4">
+                Technical Prototypes
+              </h3>
+            </div>
+            <div class="grid lg:grid-cols-2 gap-10">
+              <ProjectCard
+                title="CallShield-AI"
+                tag="Voice Security"
+                description="A real-time LLM-driven pipeline engineered to detect social engineering and fraud during live telephonic streams."
+                points={[
+                  "Architected an asynchronous pipeline using Node.js and WebSockets.",
+                  "Implemented Deepgram (STT) integrated with Gemini 1.5 Flash.",
+                  "Benchmarked against synthetic scam taxonomies (KYC, Lottery).",
+                ]}
+                metrics="Sub-3s latency | 90% True Positive Rate"
+                link="https://github.com/mois-khan/callshield-ai"
+              />
+              <ProjectCard
+                title="SafeRoute"
+                tag="Urban Navigation"
+                description="A multi-criteria pathfinding heuristic system that prioritizes urban safety density over traditional distance metrics."
+                points={[
+                  "Developed custom heuristic logic weighing geospatial data points.",
+                  "Integrated signals: Police Stations, Street Lighting, Hospitals.",
+                  "Optimized A* variant for safety-weighted routing.",
+                ]}
+                metrics="15% Safety Score improvement vs Baseline"
+                link="https://github.com/mois-khan/saferoute-AI"
+              />
+            </div>
+          </div>
+        </section>
+      );
+
+      const MetricsChart = () => {
+        const chartRef = useRef(null);
+        const chartInstance = useRef(null);
+        const [view, setView] = useState("latency");
+
+        useEffect(() => {
+          if (chartInstance.current) chartInstance.current.destroy();
+          const ctx = chartRef.current.getContext("2d");
+
+          const data =
+            view === "latency"
+              ? {
+                  labels: ["Sequential API", "CallShield (Async)"],
+                  values: [8.5, 2.8],
+                  color: "#2563eb",
+                }
+              : {
+                  labels: ["Standard Route", "SafeRoute (Heuristic)"],
+                  values: [65, 80],
+                  color: "#10b981",
+                };
+
+          chartInstance.current = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels: data.labels,
+              datasets: [
+                {
+                  data: data.values,
+                  backgroundColor: ["#e2e8f0", data.color],
+                  borderRadius: 2,
+                  barThickness: 60,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  grid: { color: "#f1f5f9" },
+                  ticks: { font: { family: "JetBrains Mono", size: 10 } },
+                },
+                x: {
+                  grid: { display: false },
+                  ticks: { font: { family: "Inter", weight: "600", size: 11 } },
+                },
+              },
+            },
+          });
+        }, [view]);
+
+        return (
+          <section
+            id="metrics"
+            class="py-32 px-6 bg-white border-y border-slate-200"
+          >
+            <div class="max-w-4xl mx-auto">
+              <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-6 italic tracking-tight">
+                  Quantified Performance
+                </h2>
+                <div class="inline-flex bg-slate-100 p-1 rounded-sm">
+                  {["latency", "safety"].map((v) => (
+                    <button
+                      key={v}
+                      onClick={() => setView(v)}
+                      class={`px-8 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${view === v ? "bg-white text-blue-600 shadow-sm" : "text-slate-400 hover:text-slate-900"}`}
+                    >
+                      {v === "latency"
+                        ? "CallShield Latency"
+                        : "SafeRoute Efficacy"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div class="chart-container p-8 bg-slate-50/50 border border-slate-100 rounded-xl">
+                <canvas ref={chartRef}></canvas>
+              </div>
+            </div>
+          </section>
         );
+      };
 
-        const Hero = () => (
-            <header id="about" class="relative min-h-screen flex items-center pt-20 px-6 overflow-hidden bg-mesh">
-                <div class="absolute inset-0 bg-dot-grid opacity-[0.3]"></div>
-                <div class="max-w-6xl mx-auto relative z-10 w-full">
-                    <div class="max-w-4xl">
-                        {/* Status Badge */}
-                        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 mb-6">
-                            <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                            </span>
-                            <span class="text-[10px] font-bold tracking-[0.2em] text-blue-700 uppercase leading-none">Currently building AI & Software Projects</span>
-                        </div>
-                        
-                        {/* 1. Name: Reduced mb-2 to pull tagline closer */}
-                        <h1 class="text-7xl md:text-9xl font-bold tracking-tighter text-slate-900 mb-2 leading-[0.85]">
-                            Mois Khan
-                        </h1>
-                        
-                        {/* 2. Tagline: Added leading-[0.9] to tighten space between the two lines */}
-                        <h2 class="text-6xl md:text-8xl font-bold tracking-tighter text-slate-400 mb-10 leading-[0.9]">
-                            Software Systems & AI Solutions
-                        </h2>
-                        
-                        {/* Subtext */}
-                        <p class="text-xl md:text-2xl text-slate-600 mb-10 max-w-2xl font-light leading-relaxed">
-                            I design and build software systems that solve <span class="text-slate-900 font-medium">real-world problems</span> — from <span class="text-slate-900 font-medium">AI-powered security</span> tools to practical web applications.
-                        </p>
-                        
-                        {/* Buttons */}
-                        <div class="flex flex-wrap gap-4">
-                            <a href="#projects" class="px-8 py-4 bg-[#0f172a] text-white rounded-sm font-bold hover:bg-blue-600 transition-all shadow-xl">
-                                View Projects
-                            </a>
-                            <a href="https://github.com/mois-khan" target="_blank" class="px-8 py-4 bg-transparent text-slate-900 border border-slate-200 rounded-sm font-medium hover:border-slate-900 transition-all flex items-center">
-                                GitHub <span class="ml-2 text-lg">↗</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                {/* Scroll Indicator */}
-                <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-20 hidden md:block">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
-                </div>
-            </header>
-        );
+      const Achievements = () => (
+        <section
+          id="achievements"
+          class="py-32 px-6 bg-slate-950 text-white relative overflow-hidden"
+        >
+          <div class="absolute top-0 left-0 w-full h-full bg-dot-grid opacity-[0.05]"></div>
+          <div class="max-w-6xl mx-auto relative z-10">
+            <h2 class="text-4xl font-bold mb-20 tracking-tighter">
+              Honors & Credentials
+            </h2>
 
-        const ProjectCard = ({ title, tag, description, points, metrics, link }) => (
-            <div class="group bg-white p-8 border border-slate-200 hover:border-blue-500 transition-all duration-500 relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
+            <div class="grid md:grid-cols-3 gap-8">
+              {/* GPA Card */}
+              <div class="md:col-span-1 bg-slate-900/50 p-8 border border-slate-800 rounded-2xl hover:bg-slate-900 transition-all">
+                <div class="text-blue-500 mb-6">
+                  <Icons.Graduation />
+                </div>
+                <div class="text-5xl font-bold mb-2 tracking-tighter">8.50</div>
+                <div class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">
+                  SGPA (Sem III-I)
+                </div>
+                <p class="text-xs text-slate-500 leading-relaxed">
+                  Malla Reddy Engineering College. Ranking in top 20% of CSE
+                  department.
+                </p>
+              </div>
+
+              {/* Awards Card */}
+              <div class="md:col-span-2 grid sm:grid-cols-2 gap-8">
+                <div class="bg-slate-900/50 p-8 border border-slate-800 rounded-2xl hover:bg-slate-900 transition-all">
+                  <div class="text-blue-500 mb-6">
+                    <Icons.Trophy />
+                  </div>
+                  <h4 class="text-xl font-bold mb-2">1st Prize: Research</h4>
+                  <p class="text-sm text-slate-400 leading-relaxed italic">
+                    Avazya 2k25 @ CMREC
+                  </p>
+                  <p class="text-xs text-slate-500 mt-4 leading-relaxed">
+                    Awarded for excellence in technical research synthesis and
+                    presentation logic.
+                  </p>
+                </div>
+                <div class="bg-slate-900/50 p-8 border border-slate-800 rounded-2xl hover:bg-slate-900 transition-all">
+                  <div class="text-blue-500 mb-6">
                     <Icons.Code />
+                  </div>
+                  <h4 class="text-xl font-bold mb-2">Buildathon 2025</h4>
+                  <p class="text-sm text-slate-400 leading-relaxed italic">
+                    OpenAI x NXT
+                  </p>
+                  <p class="text-xs text-slate-500 mt-4 leading-relaxed">
+                    Developed high-concurrency generative AI prototypes under
+                    strict time constraints.
+                  </p>
                 </div>
-                <div class="mb-6">
-                    <span class="mono text-[10px] uppercase tracking-widest text-blue-600 font-bold">{tag}</span>
-                    <h3 class="text-2xl font-bold text-slate-900 mt-2">{title}</h3>
+              </div>
+
+              {/* Stack Card */}
+              <div class="md:col-span-3 bg-blue-600 p-8 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div class="flex items-center space-x-4">
+                  <div class="p-3 bg-white/10 rounded-lg">
+                    <Icons.Stack />
+                  </div>
+                  <div>
+                    <h4 class="text-xl font-bold">Technical Competency</h4>
+                    <p class="text-blue-100 text-sm">
+                      Orchestrating modern AI & System frameworks.
+                    </p>
+                  </div>
                 </div>
-                <p class="text-slate-500 mb-8 text-sm leading-relaxed">{description}</p>
-                <div class="space-y-4 mb-8">
-                    {points.map((pt, i) => (
-                        <div key={i} class="flex items-start">
-                            <div class="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 mr-3 shrink-0"></div>
-                            <p class="text-sm text-slate-700 leading-tight">{pt}</p>
-                        </div>
-                    ))}
+                <div class="flex flex-wrap gap-2">
+                  {[
+                    "Python",
+                    "Node.js",
+                    "WebSocket",
+                    "React",
+                    "Gemini 1.5 API",
+                    "Deepgram",
+                    "Tailwind",
+                  ].map((tech) => (
+                    <span
+                      key={tech}
+                      class="px-3 py-1 bg-white/10 rounded text-[10px] font-bold tracking-widest uppercase"
+                    >
+                      {tech}
+                    </span>
+                  ))}
                 </div>
-                <div class="pt-6 border-t border-slate-100 mt-auto">
-                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Performance Output</p>
-                    <p class="text-slate-900 text-sm font-medium">{metrics}</p>
-                </div>
+              </div>
             </div>
-        );
+          </div>
+        </section>
+      );
 
-        const Projects = () => (
-            <section id="projects" class="py-32 px-6 bg-slate-50 relative overflow-hidden">
-                <div class="max-w-6xl mx-auto relative z-10">
-                    <div class="mb-20">
-                        <h2 class="text-sm font-bold tracking-[0.3em] text-blue-600 uppercase mb-4 italic">Functional Systems</h2>
-                        <h3 class="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">Technical Prototypes</h3>
-                    </div>
-                    <div class="grid md:grid-cols-2 gap-px bg-slate-200 border border-slate-200">
-                        <ProjectCard 
-                            title="CallShield-AI"
-                            tag="Voice Security"
-                            description="Real-time LLM pipeline for fraud detection during live telephonic streams."
-                            points={[
-                                "Asynchronous Node.js & WebSocket orchestration",
-                                "Deepgram (STT) + Gemini 1.5 Flash integration",
-                                "Scam taxonomy benchmarking (KYC/Lottery)"
-                            ]}
-                            metrics="Sub-3s latency | 90% True Positive Rate"
-                            link="https://github.com/mois-khan/callshield-ai"
-                        />
-                        <ProjectCard 
-                            title="SafeRoute"
-                            tag="Urban Navigation"
-                            description="Pathfinding heuristic system prioritizing safety density over shortest-path metrics."
-                            points={[
-                                "Custom heuristic logic on OSM data",
-                                "Geospatial weighting (Light/Police/Hospital)",
-                                "A* variant for safety-optimized routing"
-                            ]}
-                            metrics="15% Safety Score improvement vs Baseline"
-                            link="https://github.com/mois-khan/saferoute-AI"
-                        />
-                    </div>
-                </div>
-            </section>
-        );
-
-        const MetricsChart = () => {
-            const chartRef = useRef(null);
-            const chartInstance = useRef(null);
-            const [view, setView] = useState('latency'); 
-
-            useEffect(() => {
-                if (chartInstance.current) chartInstance.current.destroy();
-                const ctx = chartRef.current.getContext('2d');
-                
-                const data = view === 'latency' 
-                    ? { labels: ['Sequential API', 'CallShield (Async)'], values: [8.5, 2.8], color: '#2563eb' }
-                    : { labels: ['Standard Route', 'SafeRoute (Heuristic)'], values: [65, 80], color: '#10b981' };
-
-                chartInstance.current = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: data.labels,
-                        datasets: [{
-                            data: data.values,
-                            backgroundColor: ['#e2e8f0', data.color],
-                            borderRadius: 2,
-                            barThickness: 60
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } },
-                            x: { grid: { display: false }, ticks: { font: { family: 'Inter', weight: '600', size: 11 } } }
-                        }
-                    }
-                });
-            }, [view]);
-
-            return (
-                <section id="metrics" class="py-32 px-6 bg-white border-y border-slate-200">
-                    <div class="max-w-4xl mx-auto">
-                        <div class="text-center mb-16">
-                            <h2 class="text-3xl font-bold mb-6 italic tracking-tight">Quantified Performance</h2>
-                            <div class="inline-flex bg-slate-100 p-1 rounded-sm">
-                                {['latency', 'safety'].map(v => (
-                                    <button 
-                                        key={v}
-                                        onClick={() => setView(v)}
-                                        class={`px-8 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${view === v ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-900'}`}
-                                    >
-                                        {v === 'latency' ? 'CallShield Latency' : 'SafeRoute Efficacy'}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                        <div class="chart-container p-8 bg-slate-50/50 border border-slate-100 rounded-xl">
-                            <canvas ref={chartRef}></canvas>
-                        </div>
-                    </div>
-                </section>
-            );
-        };
-
-        const Achievements = () => (
-            <section id="achievements" class="py-32 px-6 bg-slate-950 text-white relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-full bg-dot-grid opacity-[0.05]"></div>
-                <div class="max-w-6xl mx-auto relative z-10">
-                    <h2 class="text-4xl font-bold mb-20 tracking-tighter">Honors & Credentials</h2>
-                    
-                    <div class="grid md:grid-cols-3 gap-8">
-                        {/* GPA Card */}
-                        <div class="md:col-span-1 bg-slate-900/50 p-8 border border-slate-800 rounded-2xl hover:bg-slate-900 transition-all">
-                            <div class="text-blue-500 mb-6"><Icons.Graduation /></div>
-                            <div class="text-5xl font-bold mb-2 tracking-tighter">8.50</div>
-                            <div class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">SGPA (Sem III-I)</div>
-                            <p class="text-xs text-slate-500 leading-relaxed">Malla Reddy Engineering College. Ranking in top 20% of CSE department.</p>
-                        </div>
-
-                        {/* Awards Card */}
-                        <div class="md:col-span-2 grid sm:grid-cols-2 gap-8">
-                            <div class="bg-slate-900/50 p-8 border border-slate-800 rounded-2xl hover:bg-slate-900 transition-all">
-                                <div class="text-blue-500 mb-6"><Icons.Trophy /></div>
-                                <h4 class="text-xl font-bold mb-2">1st Prize: Research</h4>
-                                <p class="text-sm text-slate-400 leading-relaxed italic">Avazya 2k25 @ CMREC</p>
-                                <p class="text-xs text-slate-500 mt-4 leading-relaxed">Awarded for excellence in technical research synthesis and presentation logic.</p>
-                            </div>
-                            <div class="bg-slate-900/50 p-8 border border-slate-800 rounded-2xl hover:bg-slate-900 transition-all">
-                                <div class="text-blue-500 mb-6"><Icons.Code /></div>
-                                <h4 class="text-xl font-bold mb-2">Buildathon 2025</h4>
-                                <p class="text-sm text-slate-400 leading-relaxed italic">OpenAI x NXT</p>
-                                <p class="text-xs text-slate-500 mt-4 leading-relaxed">Developed high-concurrency generative AI prototypes under strict time constraints.</p>
-                            </div>
-                        </div>
-
-                        {/* Stack Card */}
-                        <div class="md:col-span-3 bg-blue-600 p-8 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6">
-                            <div class="flex items-center space-x-4">
-                                <div class="p-3 bg-white/10 rounded-lg"><Icons.Stack /></div>
-                                <div>
-                                    <h4 class="text-xl font-bold">Technical Competency</h4>
-                                    <p class="text-blue-100 text-sm">Orchestrating modern AI & System frameworks.</p>
-                                </div>
-                            </div>
-                            <div class="flex flex-wrap gap-2">
-                                {['Python', 'Node.js', 'WebSocket', 'React', 'Gemini 1.5 API', 'Deepgram', 'Tailwind'].map(tech => (
-                                    <span key={tech} class="px-3 py-1 bg-white/10 rounded text-[10px] font-bold tracking-widest uppercase">{tech}</span>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        );
-
-        const Footer = () => (
-            <footer class="py-12 bg-slate-950 border-t border-slate-900 px-6">
-                <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center text-slate-500 text-[10px] font-bold tracking-[0.2em] uppercase">
-                    <p>&copy; 2026 Md. Mois Khan. Systems Portfolio.</p>
-                    <div class="flex space-x-6 mt-4 md:mt-0">
-                        <a href="https://github.com/mois-khan" class="hover:text-white">GitHub</a>
-                        <a href="#" class="hover:text-white">LinkedIn</a>
-                        <a href="mailto:moiskhanmd9090@gmail.com" class="hover:text-white">Email</a>
-                    </div>
-                </div>
-            </footer>
-        );
-
-        const App = () => (
-            <div class="relative">
-                <Navbar />
-                <main>
-                    <Hero />
-                    <Projects />
-                    <MetricsChart />
-                    <Achievements />
-                </main>
-                <Footer />
+      const Footer = () => (
+        <footer class="py-12 bg-slate-950 border-t border-slate-900 px-6">
+          <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center text-slate-500 text-[10px] font-bold tracking-[0.2em] uppercase">
+            <p>&copy; 2026 Md. Mois Khan. Systems Portfolio.</p>
+            <div class="flex space-x-6 mt-4 md:mt-0">
+              <a href="https://github.com/mois-khan" class="hover:text-white">
+                GitHub
+              </a>
+              <a href="#" class="hover:text-white">
+                LinkedIn
+              </a>
+              <a
+                href="mailto:moiskhanmd9090@gmail.com"
+                class="hover:text-white"
+              >
+                Email
+              </a>
             </div>
-        );
+          </div>
+        </footer>
+      );
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+      const App = () => (
+        <div class="relative">
+          <Navbar />
+          <main>
+            <Hero />
+            <Projects />
+            <MetricsChart />
+            <Achievements />
+          </main>
+          <Footer />
+        </div>
+      );
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
     </script>
-</body>
+  </body>
 </html>
